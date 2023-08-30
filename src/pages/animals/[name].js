@@ -4,7 +4,6 @@ import Pagination from "../../components/pagination";
 import { useSearchParams, useRouter } from "next/navigation";
 
 export default function AnimalName() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const search = searchParams.get("name");
   const page = searchParams.get("page");
@@ -18,7 +17,7 @@ export default function AnimalName() {
 
   async function getData() {
     const response = await fetch(
-      `https://${search}.snapapps.online/api/v1/${search}/list?limit=${pageSize}&page=${currentPage}`
+      `https://${search}.snapapps.online/api/v1/${search}/list?limit=${pageSize}&page=${page??1}`
     );
     return response.json();
   }
@@ -43,11 +42,6 @@ export default function AnimalName() {
       loadData();
     }
   }, [page]);
-
-  const onPageChange = (page) => {
-    router.push(`${search}?page=${page}`, undefined, { scroll: true });
-    setCurrentPage(page ?? 1);
-  };
   return (
     <div className="container">
       <div className="row">
@@ -75,7 +69,6 @@ export default function AnimalName() {
       </div>
       <Pagination
         currentPage={currentPage}
-        onPageChange={onPageChange}
         name={search}
         pageCount={data?.meta?.pageCount}
         setCurrentPage={setCurrentPage}
