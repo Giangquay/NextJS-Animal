@@ -1,19 +1,25 @@
+'use client'
+
 import { useRouter } from "next/router";
-import Link from "next/link";
 export default function Pagination(props)
 {
+  console.log(props)
   const router = useRouter();
   const pages = [];
   for (let i = 1; i <=props.pageCount; i++){
     pages[i]=i
   }
   const onPrevPageChange =() => {
-    router.push(`${props.name}?page=${props.currentPage - 1}`, undefined, { shallow: true })
+    if ((props.currentPage - 1)>0) {
+    router.push(`${props.name}?page=${props.currentPage - 1}`)
     props.setCurrentPage(props.currentPage -1)
+   }
   }
-  const onNextPageChange =() => {
-    router.push(`${props.name}?page=${props.currentPage + 1}`, undefined, { shallow: true })
-    props.setCurrentPage(props.currentPage + 1)
+  const onNextPageChange = () => {
+    if ((parseInt(props.currentPage) + 1) < props.pageCount+1) {
+      router.push(`${props.name}?page=${parseInt(props.currentPage) + 1}`)
+      props.setCurrentPage(parseInt(props.currentPage) + 1)
+    }
   }
     return (
         <nav aria-label="Page navigation text-center">

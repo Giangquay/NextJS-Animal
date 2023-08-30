@@ -1,36 +1,69 @@
-'use client'
-
-import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import { GetStaticPaths, GetStaticProps } from "next";
-import { ParsedUrlQuery } from "querystring";
 import useSWR from "swr";
 import Pagination from "../../components/pagination";
-
-export default function AnimalName({birdData}) {
+import { useSearchParams,usePathname, useRouter} from 'next/navigation'
+export default function AnimalName() {
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(parseInt(router.query.page) || 1)
-  let { name, page: pagecurrent } = router?.query
+  //version 13
+  const searchParams = useSearchParams()
+  const search = searchParams.get('name')
+  const page = searchParams.get('page')
+  // const [pageParams, setPageParams]=useState(page||1)
+  const [currentPage, setCurrentPage] = useState(parseInt(page) || 1)
   const pageSize = 100;
+
+  const [data, setData] = useState({
+    datas: [],
+    meta: {}
+  })
+  
+  async function getData() {
+    const response = await fetch(`https://${search}.snapapps.online/api/v1/${search}/list?limit=${pageSize}&page=${currentPage}`);
+    return response.json();
+  }
+  useEffect(() => {
+    if (search) {
+      setCurrentPage(1);
+      const loadData = async () => {
+       const res = await getData();
+        console.log("data::::", res);
+        setData(res)
+      }
+      loadData();
+    }
+    
+  }, [search]);
+
+  useEffect(() => {
+    if (page) {
+      setCurrentPage(currentPage);
+      const loadData = async () => {
+        const res = await getData();
+        console.log('page::::', res);
+        setData(res)
+      }
+      loadData()
+    }
+  },[page])
+
   const onPageChange = (page) => {
-    setCurrentPage(page);
-    router.push(`${name}?page=${page}`, undefined, { scroll: true })
+    router.push(`${search}?page=${page}`, undefined, { scroll: true })
+    setCurrentPage(page??1);
   };
 
+ 
+  // const { data, error, isloading } = useSWR(
+  //   `https://${search}.snapapps.online/api/v1/${search}/list?limit=${pageSize}&page=${page ?? 1}`,
+  //   fetcher,
+  //   {
+  //     revalidateIfStale: false,
+  //     revalidateOnFocus: false,
+  //     revalidateOnReconnect: false
+  //   }
+  // )
 
-  const fetcher = async (url) => await fetch(url).then((res) => res.json());
-  const { data, error, isloading } = useSWR(
-    `https://${name}.snapapps.online/api/v1/${name}/list?limit=${pageSize}&page=${pagecurrent ?? 1}`,
-    fetcher,
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false
-    }
-  )
-
-  if (error) return <div>Error Server</div>;
-  if (isloading) return <div>Is Loading</div>;
+  // if (error) return <div>Error Server</div>;
+  // if (isloading) return <div>Is Loading</div>;
   return (
     <div className="container">
       <div className="row">
@@ -61,73 +94,12 @@ export default function AnimalName({birdData}) {
       <Pagination
         currentPage={currentPage}
         onPageChange={onPageChange}
-        name={name}
-        pageCount={data?.meta.pageCount}
+        name={search}
+        pageCount={data?.meta?.pageCount}
         setCurrentPage={setCurrentPage}
       />
     </div>
   );
 }
 
-export async function getServerSideProps(context) {
-    const { name } = context.query;
 
-    const url = `https://${name}.snapapps.online/api/v1/${name}/list?limit=100`;
-
-    try {
-        const response = await fetch(url)
-        const birdData = await response.json();
-          return {
-            props: {
-              birdData,
-            },
-          };
-        } catch (error) {
-          console.error('Lỗi:', error);
-          return {
-            props: {},
-          };
-        }
-    }
-// export async function getStaticPaths()
-// {
-//     // const name = context.params.name
-//     // const res = await fetch(`https://${name}.snapapps.online/api/v1/${name}/list?limit=100`);
-//     // const data = await res.json();
-
-//     // const paths = data.map((item) => {
-//     //     return {
-//     //         params: {name: item.facts.type.toString()}
-//     //     }
-//     // })
-
-//     // return {
-//     //     paths,
-//     //     fallback:false// Nếu fallback là false, các đường dẫn không khớp sẽ trả về 404
-//     // }
-//     return {
-//         paths: [
-//           {
-//             params: {
-//               name: 'bird',
-//             },
-//             params :{
-//              name:'fish'
-//             }
-//           }, // See the "paths" section below
-//         ],
-//         fallback: true, // false or "blocking"
-//       }
-// }
-
-// export async function getStaticProps(context) {
-//     const name = context.params.name;
-//     console.log(name)
-//     const res = await fetch(`https://${name}.snapapps.online/api/v1/${name}/list?limit=100`);
-//     const data = await res.json();
-//     return {
-//         props: {
-//             birdData:data
-//         }
-//     }
-// }
