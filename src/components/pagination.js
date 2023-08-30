@@ -3,7 +3,6 @@
 import { useRouter } from "next/router";
 export default function Pagination(props)
 {
-  console.log(props)
   const router = useRouter();
   const pages = [];
   for (let i = 1; i <=props.pageCount; i++){
