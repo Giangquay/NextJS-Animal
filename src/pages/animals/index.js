@@ -1,8 +1,9 @@
-import Link from "next/link";
+import { useRouter ,useSearchParams} from "next/navigation";
 
 function AnimalList({animal})
 {
-
+    const search = useSearchParams();
+   
     return (
         <div className="container">
         <div className="row">

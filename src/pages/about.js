@@ -1,7 +1,7 @@
 export default function About()
 {
     return (
-        <div style={{marginTop:'20px'}}>
+        <div className="container">
             This is About
         </div>
     )

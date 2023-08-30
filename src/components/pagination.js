@@ -1,6 +1,8 @@
 'use client'
 
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 export default function Pagination(props)
 {
   const router = useRouter();
@@ -32,7 +34,7 @@ export default function Pagination(props)
               {
             pages.map((value) => {
               return (<li className={value===props.currentPage?"page-item active":"page-item"}>
-                 <a className="page-link" onClick={()=>props.onPageChange(value)}>{value}</a>
+                <Link href={`${props.name}?page=${value}`} className="page-link" onClick={()=>props.setCurrentPage(value)}>{value}</Link>
               </li> )
                 })
               } 
