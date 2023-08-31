@@ -1,47 +1,33 @@
-"use client";
 import { useState, useEffect } from "react";
+import useSWR from "swr";
 import Pagination from "../../components/pagination";
-import { useSearchParams, useRouter } from "next/navigation";
-
+import { useSearchParams} from 'next/navigation'
 export default function AnimalName() {
-  const searchParams = useSearchParams();
-  const search = searchParams.get("name");
-  const page = searchParams.get("page");
-  const [currentPage, setCurrentPage] = useState(parseInt(page) || 1);
+  //version 13
+  const searchParams = useSearchParams()
+  const search = searchParams.get('name')
+  const page = searchParams.get('page')
+  const [currentPage, setCurrentPage] = useState(parseInt(page) || 1)
   const pageSize = 100;
-
-  const [data, setData] = useState({
-    datas: [],
-    meta: {},
-  });
-
-  async function getData() {
-    const response = await fetch(
-      `https://${search}.snapapps.online/api/v1/${search}/list?limit=${pageSize}&page=${page??1}`
-    );
-    return response.json();
-  }
   useEffect(() => {
-    if (search) {
-      setCurrentPage(1);
-      const loadData = async () => {
-        const res = await getData();
-        setData(res);
-      };
-      loadData();
-    }
-  }, [search]);
-
+    if (search) setCurrentPage(1) 
+  }, [search])  
   useEffect(() => {
-    if (page) {
-      setCurrentPage(currentPage);
-      const loadData = async () => {
-        const res = await getData();
-        setData(res);
-      };
-      loadData();
+    if (page) setCurrentPage(parseInt(page));
+  }, [page])
+  useEffect(() => {
+    setCurrentPage(currentPage)
+  }, [setCurrentPage])
+
+  const { data, error, isloading } = useSWR(
+    `https://${search}.snapapps.online/api/v1/${search}/list?limit=${pageSize}&page=${currentPage||1}`,
+    async (url) => await fetch(url).then((res) => res.json()),
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false
     }
-  }, [page]);
+  )
   return (
     <div className="container">
       <div className="row">
@@ -65,14 +51,16 @@ export default function AnimalName() {
               </div>
             </div>
           );
+          //   }
         })}
       </div>
       <Pagination
         currentPage={currentPage}
         name={search}
-        pageCount={data?.meta?.pageCount}
+        pageCount={data?.meta.pageCount}
         setCurrentPage={setCurrentPage}
       />
     </div>
   );
 }
+
