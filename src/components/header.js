@@ -1,7 +1,10 @@
+'use client'
+
 import { useState } from "react"
 import { listApp } from "../pages/contants"
 import { useRouter } from 'next/router';
 import Link from 'next/link'
+import { redirect, useSearchParams } from "next/navigation";
 export default function Header()
 {
     const router = useRouter();
@@ -11,7 +14,6 @@ export default function Header()
       setIsOpen(!isOpen);
     };
     const handleClose = () => setIsOpen(false);
-    // 
     return (
         <div className="header">
             <div className="header__top">
@@ -39,10 +41,10 @@ export default function Header()
                             <div className="nav-item">Quizzes</div>
                     </div>
                     <div className="form__search--animal">
-                        <form>
-                        <input type="text" className="form__input" placeholder="Search here"/>
-                         <button className="btn--green" type="submit">Search</button>
-                        </form>                        
+                    <form  action="/search"> 
+                    <input type="text" className="form__input" name="searchKey" placeholder="Search here"/>
+                    <button className="btn--green" type="submit">Search</button>
+                    </form>                        
                     </div>
                 </div>
             </div>

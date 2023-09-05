@@ -11,7 +11,7 @@ export default function Pagination(props)
     pages.push(i)
   }
     return (
-        <nav aria-label="Page navigation text-center">
+        <nav aria-label="Page navigation text-center" style={{display:'block'}}>
         <ul className="pagination">
         <li className={`${props.currentPage>1 ? "page-item":"page-item disabled"}`}  >
               <Link href={`${props.name}?page=${props.currentPage-1}`} class="page-link">Previous</Link>

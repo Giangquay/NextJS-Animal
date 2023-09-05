@@ -1,33 +1,45 @@
 import { useState, useEffect } from "react";
 import useSWR from "swr";
 import Pagination from "../../components/pagination";
-import { useSearchParams} from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+import { fetcher } from '../../components/fetcher'
+import NotFound from '../../components/NotFound'
 export default function AnimalName() {
   //version 13
   const searchParams = useSearchParams()
-  const search = searchParams.get('name')
+  const name = searchParams.get('name')
   const page = searchParams.get('page')
+  const searchKey = searchParams.get('searchKey');
   const [currentPage, setCurrentPage] = useState(parseInt(page) || 1)
-  const pageSize = 100;
+  const limit = 100;
   useEffect(() => {
-    if (search) setCurrentPage(1) 
-  }, [search])  
+    if (name) setCurrentPage(1) 
+  }, [name])  
   useEffect(() => {
     if (page) setCurrentPage(parseInt(page));
+    else setCurrentPage(1)
+    
   }, [page])
   useEffect(() => {
     setCurrentPage(currentPage)
   }, [setCurrentPage])
-
+  console.log(searchParams.get('name'))
+  console.log(searchParams.get('searchKey'))
   const { data, error, isloading } = useSWR(
-    `https://${search}.snapapps.online/api/v1/${search}/list?limit=${pageSize}&page=${currentPage||1}`,
-    async (url) => await fetch(url).then((res) => res.json()),
+    `https://${name}.snapapps.online/api/v1/${name}?limit=${limit}&page=${currentPage||1}`,
+    fetcher,
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false
     }
   )
+  // console.log(data?.datas.length===0)
+  if (data?.datas.length === 0) {
+    return (
+       <NotFound></NotFound>
+      )
+  }
   return (
     <div className="container">
       <div className="row">
@@ -52,14 +64,16 @@ export default function AnimalName() {
             </div>
           );
           //   }
-        })}
+        })}    
       </div>
-      <Pagination
+      {data&& 
+        <Pagination
         currentPage={currentPage}
-        name={search}
+        name={name}
         pageCount={data?.meta.pageCount}
         setCurrentPage={setCurrentPage}
       />
+      }
     </div>
   );
 }
